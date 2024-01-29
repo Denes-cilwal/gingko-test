@@ -26,3 +26,57 @@ var _ = Describe("Books", func() {
 	})
 
 })
+
+// using before each and (avoid DRY case)
+
+var _ = Describe("Book", func() {
+	var book Books
+
+	/*
+		If there are multiple test cases (It blocks) within the Describe block,
+		this setup process is repeated for each test case, ensuring they all start with a fresh instance of Book and a valid state check.
+	*/
+	BeforeEach(func() {
+		book = Books{
+			Name:   "Les Miserables",
+			Author: "Victor Hugo",
+		}
+	})
+
+	It("should have the correct Name", func() {
+		Expect(book.Name).To(Equal("Les Miserables"))
+	})
+
+	// More test cases...
+})
+
+// container nodes use case - Describe, when, context
+//
+//	Describe different capabilities of your code and explore the behavior of each capability across different Contexts.
+var _ = Describe("Books", func() {
+	var book Books
+
+	BeforeEach(func() {
+		book = Books{
+			Author: "Victor Hugo",
+		}
+	})
+
+	Describe("Extracting the author's first and last name", func() {
+		Context("When the author has both names", func() {
+			// add test case
+		})
+
+		Context("When the author only has one name", func() {
+			BeforeEach(func() {
+				book.Author = "Hugo"
+			})
+
+			It("interprets the single author name as a last name", func() {
+				Expect(book.GetAuthorName()).To(Equal("Hugo"))
+			})
+
+		})
+
+	})
+})
