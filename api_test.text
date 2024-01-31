@@ -1,0 +1,82 @@
+
+
+var (
+	t      GinkgoTInterface
+	router infrastructure.Router
+	env    *framework.Env
+	logger framework.Logger
+)
+
+/*
+ Each test (It block) should run independently of others to avoid shared state that can lead to flaky,
+	interdependent tests. BeforeEach ensures that each test starts with a fresh environment.
+*/
+
+var _ = Describe("Router", func() {
+
+	BeforeEach(func() {
+		t = GinkgoT()
+		logger = framework.GetLogger()
+		env = framework.NewEnv(logger)
+		router = infrastructure.NewRouter(env, logger)
+	})
+
+	Describe("HealthCheck Endpoint", func() {
+		It("should return 200 for health-check", func() {
+			apitest.New().
+				Handler(router.Engine).
+				Get("/health-check").
+				Expect(t).
+				Status(http.StatusOK).
+				End()
+		})
+
+		It("should set CORS headers correctly for health-check", func() {
+			apitest.New().
+				Handler(router.Engine).
+				Get("/health-check").
+				Header("Origin", "*").
+				Expect(t).
+				Status(http.StatusOK).
+				Header("Access-Control-Allow-Origin", "*").
+				End()
+		})
+	})
+})
+
+
+/*
+When I say that the GinkgoTInterface mimics the behavior of the standard *testing.T object from Go's built-in testing framework, it means that GinkgoTInterface is designed to provide a similar set of functions and methods as *testing.T, but within the context of the Ginkgo testing framework.
+
+Understanding Mimicry in This Context
+Similar Interface: GinkgoTInterface offers a set of methods that resemble those found in Go's *testing.T.
+This includes methods for logging, error reporting, and marking tests as failed.
+
+Behavioral Equivalence: The methods in GinkgoTInterface behave similarly to their counterparts in *testing.T.
+For example, if you call a method to mark a test as failed in GinkgoTInterface, it behaves the way t.Fail() would in a standard Go test.
+
+Purpose: The idea is to allow tools and libraries that were originally designed to work with Go's standard testing framework (and hence expect a *testing.T object) to operate within a Ginkgo test environment without needing to be rewritten.
+This is particularly useful when integrating third-party testing tools or libraries, like apitest, into Ginkgo tests.
+
+Practical Example
+In a standard Go test, you might write something like this:
+
+go
+Copy code
+func TestSomething(t *testing.T) {
+    // ... testing code ...
+}
+In this code, t is a *testing.T object used to control the test and report results.
+
+In a Ginkgo test, you don't have *testing.T, but you can get an equivalent object using GinkgoT():
+
+go
+Copy code
+BeforeEach(func() {
+    ginkgoT := GinkgoT()
+    // ... setup code that might require something like *testing.T ...
+})
+Here, ginkgoT provides a similar interface and functionality as t would in a standard Go test,
+allowing you to integrate with tools or perform actions that you would normally do with *testing.T.
+
+*/

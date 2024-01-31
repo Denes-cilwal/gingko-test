@@ -1,0 +1,6 @@
+with-expecter: True
+packages:
+  gingko-sandbox/pkg:
+    config:
+      all: true
+
